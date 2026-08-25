@@ -1,28 +1,45 @@
+// CharacterCounter.tsx
+import { useState } from 'react';
+import TextInput from './TextInput';
+import StatsDisplay from './StatsDisplay';
 
-import {useState} from 'react';
-
-// types/index.ts
 export interface CharacterCounterProps {
   minWords?: number;
   maxWords?: number;
-  targetReadingTime?: number; // in minutes
 }
 
+function CharacterCounter({ minWords = 25, maxWords = 100 }: CharacterCounterProps) {
+  const [text, setText] = useState<string>('');
 
-function CharacterCounter({minWords,maxWords,targetReadingTime}:CharacterCounterProps ){
-    const [text, setText] = useState<string>('');
-    const wordCount = text.trim() === '' ? 0 : text.trim().length;
-    const currentReadingTime = (wordCount / 200).toFixed(1);
-    return(
-        <div>
-          <textarea value ={text} onChange={(e)=>setText(e.target.value)}
-          />
-          <p>Min Words: {minWords ? `${minWords} words` : 'No minimum Words Set'}</p>
-          <p>Max Words: {maxWords ? `${maxWords} words` : 'Maximum Words Reached'}</p>
-          <p>Est. Reading Time: ~{currentReadingTime} min</p>
-          <p>Target Reading Goal: {targetReadingTime ? `${targetReadingTime} min` : 'No target set'}</p>
-        </div>
-    );
+  // Callback function to receive text from TextInput child
+  const handleTextChange = (incomingText: string) => {
+    setText(incomingText);
+  };
+
+  // Real-time calculations based on state received from child
+  const charCount = text.length;
+  const trimmedText = text.trim();
+  const wordCount = trimmedText === '' ? 0 : trimmedText.split(/\s+/).length;
+  const readingTime = wordCount / 250; // in minutes
+
+  return (
+    <div className="w-full max-w-2xl mx-auto space-y-4 opacity-85">
+      {/* 1. Pass callback function to TextInput child */}
+      <TextInput onTextChange={handleTextChange} />
+
+      {/* 2. Declare and render StatsDisplay child component */}
+      <StatsDisplay 
+        stats={{
+          characterCount: charCount,
+          wordCount: wordCount,
+          readingTime: readingTime,
+          minWords: minWords,
+          maxWords: maxWords,
+        }}
+        showReadingTime={true}
+        />
+    </div>
+  );
 }
 
 export default CharacterCounter;
